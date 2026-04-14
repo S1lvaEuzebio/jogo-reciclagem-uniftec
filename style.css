@@ -252,11 +252,13 @@ header {
         border: none;
         border-radius: 0;
         padding: 5px;
+        padding-bottom: 25px; /* Espaço para áreas de gesto/bottom */
         box-shadow: none;
     }
 
     #game-area {
         padding: 5px;
+        padding-bottom: 50px; /* Margem extra (safe-area) para modelos compridos (A12, bordas infinitas) */
         margin: 0;
     }
 
