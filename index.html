@@ -1,55 +1,136 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo da Reciclagem</title>
+    <title>Jogo da Reciclagem - Intro</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000; /* Fundo inteiramente preto */
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .intro-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 30px;
+            position: relative;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+
+        #intro-image-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 250px;
+            margin-bottom: 20px;
+        }
+
+        #intro-image {
+            max-width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+            image-rendering: pixelated; /* Perfect for the pixel planets/knights */
+            clip-path: circle(48% at 50% 50%); /* Corta o fundo e mantém apenas o planeta em círculo */
+        }
+
+        .knight-preview {
+            width: 128px;
+            height: 128px;
+            transform: scale(2.5);
+            animation: walk 1.2s steps(8) infinite;
+        }
+
+        @keyframes walk {
+            from { background-position: 0px; }
+            to { background-position: -1024px; }
+        }
+
+        #intro-text-box {
+            background: transparent;
+            border: none;
+            padding: 20px;
+            width: 90%;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            font-size: 18px;
+            line-height: 1.6;
+            color: #fff;
+        }
+
+        #next-btn {
+            margin-top: 30px;
+            background: transparent;
+            color: #fff;
+            border: none;
+            font-size: 32px;
+            cursor: pointer;
+            visibility: hidden; /* Hidden until text finishes typing */
+            transition: transform 0.1s, color 0.2s;
+        }
+
+        #next-btn:hover {
+            transform: scale(1.2);
+            color: #ffd700;
+        }
+
+        /* Fade Animations */
+        .fade-out {
+            animation: fadeOut 0.5s forwards;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .screen {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+    </style>
 </head>
-
 <body>
-    <div id="start-screen" class="screen active">
-        <h1>Jogo da Reciclagem</h1>
-        <input type="text" id="player-name" placeholder="Seu nome..." autocomplete="off">
-        <button id="start-btn">Começar!</button>
+    <div id="intro-screen" class="screen">
+        <div class="intro-screen">
+            <div id="intro-image-container">
+                <!-- Imagem ou Sprite do Cavaleiro será injetado aqui -->
+            </div>
+            
+            <div id="intro-text-box">
+                <span id="intro-text"></span>
+                <button id="next-btn">→</button>
+            </div>
+        </div>
     </div>
 
-    <div id="game-screen" class="screen hidden">
-        <header>
-            <div id="player-display">Jogador: <span></span></div>
-            <div id="score-display">Pontos: <span id="score">0</span></div>
-        </header>
-
-        <main id="game-area">
-            <div id="hint-display"></div>
-            <div id="trash-spawner">
-                <!-- O Lixo será gerado aqui via JS -->
-            </div>
-
-            <div id="bins-container">
-                <div class="bin blue" data-type="paper">
-                    <img src="assets/blue_bin_pixel.png" alt="Lixeira Azul - Papel" draggable="false">
-                    <span>Papel</span>
-                </div>
-                <div class="bin red" data-type="plastic">
-                    <img src="assets/red_bin_pixel.png" alt="Lixeira Vermelha - Plástico" draggable="false">
-                    <span>Plástico</span>
-                </div>
-                <div class="bin green" data-type="glass">
-                    <img src="assets/green_bin_pixel.png" alt="Lixeira Verde - Vidro" draggable="false">
-                    <span>Vidro</span>
-                </div>
-                <div class="bin yellow" data-type="metal">
-                    <img src="assets/yellow_bin_pixel.png" alt="Lixeira Amarela - Metal" draggable="false">
-                    <span>Metal</span>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <script src="script.js"></script>
+    <script src="intro.js"></script>
 </body>
-
 </html>

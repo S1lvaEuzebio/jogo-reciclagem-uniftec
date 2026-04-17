@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Animação do Cavaleiro - Amarelo</title>
+    <style>
+        body {
+            background-color: #222;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+            font-family: sans-serif;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .knight {
+            width: 128px;
+            height: 128px;
+            background: url('../files/Walk_yellow.png') left center;
+            animation: walk 1.5s steps(8) infinite;
+            transform: scale(3);
+            image-rendering: pixelated;
+        }
+
+        @keyframes walk {
+            from {
+                background-position: 0px;
+            }
+            to {
+                background-position: -1024px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Cavaleiro Amarelo</h2>
+    <div class="knight"></div>
+</body>
+</html>
