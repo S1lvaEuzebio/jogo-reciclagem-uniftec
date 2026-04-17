@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Reciclagem - Login</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="theme.js"></script>
+</head>
+
+<body>
+    <div id="start-screen" class="screen">
+        <h1>Jogo da Reciclagem</h1>
+        <p id="knight-prompt"></p>
+        <input type="text" id="player-name" placeholder="Meu nome é..." autocomplete="off">
+        <button id="start-btn">Começar!</button>
+    </div>
+
+    <!-- Menus Adicionais Superiores -->
+    <div
+        style="position: fixed; top: 20px; left: 20px; display: flex; align-items: center; gap: 15px; font-family: inherit; z-index: 100;">
+        <button id="change-knight-btn"
+            style="padding: 10px; font-size: 14px; cursor: pointer; background: transparent; color: white; border: none; text-decoration: underline; font-family: inherit;">Trocar
+            Cavaleiro</button>
+        <a href="./assets/documento-ajuda.jpeg" download
+            style="color: #a8dadc; font-size: 12px; text-decoration: underline; font-family: inherit; cursor: pointer;">Clique
+            aqui para baixar nosso documento didático!</a>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+
+</html>

@@ -5,8 +5,15 @@
     font-family: 'Press Start 2P', system-ui, sans-serif;
 }
 
+:root {
+    --theme-color: #ffd700;
+    /* Fallback padrão */
+}
+
 body {
-    background-color: #87ceeb;
+    background-color: var(--theme-color);
+    /* O truque mais seguro para escurecer uma variável HEX mantendo ela de fundo: colocar um gradiente preto transparente por cima */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7));
     display: flex;
     justify-content: center;
     align-items: center;
@@ -22,7 +29,7 @@ body {
     height: 600px;
     background-color: #1a1a2e;
     /* Dark theme pixel base */
-    border: 6px solid #e94560;
+    border: 6px solid var(--theme-color, #e94560);
     border-radius: 8px;
     box-shadow: inset 0 0 0 4px #0f3460, 0 10px 20px rgba(0, 0, 0, 0.5);
     display: flex;
@@ -34,7 +41,8 @@ body {
     display: none !important;
 }
 
-#start-screen {
+#start-screen,
+#game-over-screen {
     padding: 40px;
     justify-content: center;
     align-items: center;
@@ -42,13 +50,15 @@ body {
     gap: 40px;
 }
 
-#start-screen h1 {
+#start-screen h1,
+#game-over-screen h1 {
     font-size: 38px;
-    color: #ffd700;
+    color: var(--theme-color, #ffd700);
     line-height: 1.4;
 }
 
-#start-screen p {
+#start-screen p,
+#game-over-screen p {
     font-size: 14px;
     color: #a8dadc;
 }
@@ -59,13 +69,14 @@ body {
     width: 70%;
     border: 4px solid #fff;
     background: #000;
-    color: #ffd700;
+    color: var(--theme-color, #ffd700);
     outline: none;
     text-shadow: 1px 1px 0 #333;
     text-align: center;
 }
 
-#start-btn {
+#start-btn,
+.action-btn {
     padding: 20px 40px;
     font-size: 22px;
     background: #4caf50;
@@ -76,12 +87,14 @@ body {
     text-shadow: 2px 2px 0 #000;
 }
 
-#start-btn:hover {
+#start-btn:hover,
+.action-btn:hover {
     background: #45a049;
     transform: scale(1.05);
 }
 
-#start-btn:active {
+#start-btn:active,
+.action-btn:active {
     transform: scale(0.95);
 }
 
@@ -142,7 +155,7 @@ header {
 
 #hint-display {
     text-align: center;
-    color: #ffd700;
+    color: var(--theme-color, #ffd700);
     height: 24px;
     font-size: 20px;
     margin-bottom: 10px;
@@ -252,13 +265,15 @@ header {
         border: none;
         border-radius: 0;
         padding: 5px;
-        padding-bottom: 25px; /* Espaço para áreas de gesto/bottom */
+        padding-bottom: 25px;
+        /* Espaço para áreas de gesto/bottom */
         box-shadow: none;
     }
 
     #game-area {
         padding: 5px;
-        padding-bottom: 50px; /* Margem extra (safe-area) para modelos compridos (A12, bordas infinitas) */
+        padding-bottom: 50px;
+        /* Margem extra (safe-area) para modelos compridos (A12, bordas infinitas) */
         margin: 0;
     }
 
@@ -295,11 +310,13 @@ header {
         height: 18px;
     }
 
-    #start-screen {
+    #start-screen,
+    #game-over-screen {
         padding: 15px;
     }
 
-    #start-screen h1 {
+    #start-screen h1,
+    #game-over-screen h1 {
         font-size: 24px;
     }
 
@@ -308,7 +325,8 @@ header {
         width: 95%;
     }
 
-    #start-btn {
+    #start-btn,
+    .action-btn {
         font-size: 16px;
         padding: 15px 20px;
     }

@@ -1,19 +1,27 @@
-// Estado do Jogo
-let score = 0;
-let hasScored = false;
-let playerName = '';
+// Recupera estado salvo
+let playerName = sessionStorage.getItem('playerName') || 'Jogador';
+let score = parseInt(sessionStorage.getItem('score') || '0', 10);
+let currentRound = parseInt(sessionStorage.getItem('currentRound') || '1', 10);
+let hasScored = score > 0;
 let currentMistakes = 0;
 let currentType = '';
 
+let timerInterval = null;
+let timeLeft = 0;
+
 // Elementos da UI
-const startScreen = document.getElementById('start-screen');
-const gameScreen = document.getElementById('game-screen');
-const nameInput = document.getElementById('player-name');
-const startBtn = document.getElementById('start-btn');
 const playerNameDisplay = document.querySelector('#player-display span');
 const scoreDisplay = document.getElementById('score');
+const roundDisplay = document.getElementById('round');
+const timerDisplayContainer = document.getElementById('timer-display');
+const timerDisplay = document.getElementById('timer');
 const trashSpawner = document.getElementById('trash-spawner');
 const hintDisplay = document.getElementById('hint-display');
+
+// Initialize UI
+playerNameDisplay.textContent = playerName;
+scoreDisplay.textContent = score;
+roundDisplay.textContent = currentRound;
 
 // Dados dos Lixos
 const trashTypes = [
@@ -30,39 +38,52 @@ const typeWords = {
     'metal': 'metal'
 };
 
-// Iniciar Jogo
-startBtn.addEventListener('click', startGame);
+function saveState() {
+    sessionStorage.setItem('score', score);
+    sessionStorage.setItem('currentRound', currentRound);
+}
 
-function startGame() {
-    const name = nameInput.value.trim();
-    if (name.length === 0) {
-        alert("Por favor, insira o seu nome antes de começar!");
-        nameInput.focus();
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
+
+function startTimerForRound() {
+    stopTimer();
+    if (currentRound >= 30) {
+        timeLeft = 5;
+        timerDisplayContainer.style.display = 'block';
+    } else if (currentRound >= 10) {
+        timeLeft = 10;
+        timerDisplayContainer.style.display = 'block';
+    } else {
+        timerDisplayContainer.style.display = 'none';
         return;
     }
 
-    playerName = name;
-    playerNameDisplay.textContent = playerName;
-
-    startScreen.classList.add('hidden');
-    gameScreen.classList.remove('hidden');
-
-    resetGameState();
-    spawnTrash();
+    timerDisplay.textContent = timeLeft;
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = timeLeft;
+        if (timeLeft <= 0) {
+            stopTimer();
+            handleTimeOut();
+        }
+    }, 1000);
 }
 
-function resetGameState() {
-    score = 0;
-    hasScored = false;
-    currentMistakes = 0;
-    scoreDisplay.textContent = score;
-    hintDisplay.textContent = '';
+function triggerGameOver(reason) {
+    stopTimer();
+    saveState();
+    sessionStorage.setItem('gameOverReason', reason);
+    window.location.href = 'game-over.html';
 }
 
-// Suporte para Enter no input
-nameInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') startBtn.click();
-});
+function handleTimeOut() {
+    triggerGameOver("O tempo esgotou!");
+}
 
 function updateHintDisplay() {
     if (currentMistakes === 0) {
@@ -84,12 +105,36 @@ function updateHintDisplay() {
     hintDisplay.textContent = `Dica: ${hint.trim()}`;
 }
 
+function updateScore(points) {
+    score += points;
+    if (score > 0) hasScored = true;
+    saveState();
+
+    if (hasScored && score <= 0) {
+        score = 0;
+        saveState();
+        scoreDisplay.textContent = score;
+        scoreDisplay.style.color = '#f00';
+
+        setTimeout(() => {
+            triggerGameOver("Seus pontos foram zerados!");
+        }, 50);
+
+        return true;
+    } else {
+        scoreDisplay.textContent = score;
+        scoreDisplay.style.color = points > 0 ? '#0f0' : '#f00';
+        setTimeout(() => { scoreDisplay.style.color = '#0f0'; }, 400);
+        return false;
+    }
+}
+
 function spawnTrash() {
-    trashSpawner.innerHTML = ''; // Limpar o atual
+    trashSpawner.innerHTML = '';
     currentMistakes = 0;
     updateHintDisplay();
+    startTimerForRound();
 
-    // Escolher lixo aleatório
     const randomIndex = Math.floor(Math.random() * trashTypes.length);
     const trashData = trashTypes[randomIndex];
     currentType = trashData.type;
@@ -103,7 +148,6 @@ function spawnTrash() {
 
     trashSpawner.appendChild(img);
 
-    // Efeito sutil de aparecimento
     img.style.transform = 'scale(0)';
     setTimeout(() => { img.style.transform = 'scale(1)'; }, 50);
 
@@ -117,24 +161,23 @@ function spawnTrash() {
         startY = e.clientY - currentY;
         img.classList.add('dragged-manual');
         img.setPointerCapture(e.pointerId);
-        img.style.transition = 'none'; // Desabilita smooth css para arrastar de forma 1:1 ao mouse
+        img.style.transition = 'none';
     });
 
     img.addEventListener('pointermove', (e) => {
         if (!isDragging) return;
         currentX = e.clientX - startX;
         currentY = e.clientY - startY;
-        // O drag image seguindo o cursor e 60% MAIOR (scale 1.6) como requisitado
         img.style.transform = `translate(${currentX}px, ${currentY}px) scale(1.6) rotate(5deg)`;
     });
 
     img.addEventListener('pointerup', (e) => {
         if (!isDragging) return;
+        if (!img.isConnected) return;
         isDragging = false;
         img.classList.remove('dragged-manual');
         img.releasePointerCapture(e.pointerId);
 
-        // Obter elemento exato onde foi solto
         img.style.display = 'none';
         const elements = document.elementsFromPoint(e.clientX, e.clientY);
         img.style.display = 'block';
@@ -145,35 +188,40 @@ function spawnTrash() {
             const binType = bin.dataset.type;
 
             if (img.dataset.type === binType) {
-                // Acerto
                 updateScore(10);
                 bin.classList.add('success');
                 setTimeout(() => bin.classList.remove('success'), 600);
 
-                // Anima o lixo sumindo caindo na lixeira
+                currentRound++;
+                roundDisplay.textContent = currentRound;
+                saveState();
+                stopTimer();
+
                 img.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
                 img.style.transform = `translate(${currentX}px, ${currentY}px) scale(0)`;
                 img.style.opacity = '0';
 
-                setTimeout(spawnTrash, 400); // Traz o novo lixo
+                setTimeout(spawnTrash, 400);
             } else {
-                // Erro: Lixeira incorreta!
-                currentMistakes++;
-                const isGameOver = updateScore(-5);
+                // Se for rodada com tempo (rodadas >= 10), erro leva direto a Game Over
+                if (currentRound >= 10) {
+                    triggerGameOver("Você errou a lixeira na rodada com tempo mortal!");
+                } else {
+                    currentMistakes++;
+                    const isGameOver = updateScore(-5);
 
-                if (!isGameOver) {
-                    updateHintDisplay(); // Atualiza a dica _ _ _
+                    if (!isGameOver) {
+                        updateHintDisplay();
 
-                    // Voltar a imagem exatamente pra posição original
-                    img.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                    currentX = 0;
-                    currentY = 0;
-                    img.style.transform = `translate(0px, 0px) scale(1)`;
-                    setTimeout(() => { img.style.transition = 'none'; }, 450);
+                        img.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                        currentX = 0;
+                        currentY = 0;
+                        img.style.transform = `translate(0px, 0px) scale(1)`;
+                        setTimeout(() => { img.style.transition = 'none'; }, 450);
+                    }
                 }
             }
         } else {
-            // Dropado fora do alvo (Volta pro lugar, sem penalidade)
             img.style.transition = 'transform 0.3s ease';
             currentX = 0;
             currentY = 0;
@@ -183,27 +231,5 @@ function spawnTrash() {
     });
 }
 
-function updateScore(points) {
-    score += points;
-    if (score > 0) hasScored = true;
-
-    // Regra de Derrota: Se já obteve pontos alguma vez, e zera ou fica negativo errando
-    if (hasScored && score <= 0) {
-        score = 0;
-        scoreDisplay.textContent = score;
-        scoreDisplay.style.color = '#f00';
-
-        setTimeout(() => {
-            alert("Seus pontos foram zerados! O jogo vai recomeçar do 0.");
-            resetGameState();
-            spawnTrash();
-        }, 50); // Timeout rápido para a renderização terminar primeiro
-
-        return true; // Retorna flag dizendo se deu Game Over
-    } else {
-        scoreDisplay.textContent = score;
-        scoreDisplay.style.color = points > 0 ? '#0f0' : '#f00';
-        setTimeout(() => { scoreDisplay.style.color = '#0f0'; }, 400);
-        return false;
-    }
-}
+// Inicia o jogo
+spawnTrash();
