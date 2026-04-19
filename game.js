@@ -25,10 +25,14 @@ roundDisplay.textContent = currentRound;
 
 // Dados dos Lixos
 const trashTypes = [
-    { type: 'paper', src: 'assets/paper_trash_pixel.png', name: 'Bola de Papel' },
-    { type: 'plastic', src: 'assets/plastic_trash_pixel.png', name: 'Garrafa de Plástico' },
-    { type: 'glass', src: 'assets/glass_trash_pixel.svg', name: 'Pote de Vidro' },
-    { type: 'metal', src: 'assets/metal_trash_pixel.svg', name: 'Lata de Metal' }
+    { type: 'glass', src: 'assets/trash/caco_vidro.PNG', name: 'Caco de Vidro' },
+    { type: 'plastic', src: 'assets/trash/garrafa_plastico.PNG', name: 'Garrafa de Plástico' },
+    { type: 'glass', src: 'assets/trash/garrafa_vidro.PNG', name: 'Garrafa de Vidro' },
+    { type: 'metal', src: 'assets/trash/lata_refri.PNG', name: 'Lata de Refrigerante' },
+    { type: 'metal', src: 'assets/trash/lata_sardinha.PNG', name: 'Lata de Sardinha' },
+    { type: 'paper', src: 'assets/trash/papel.PNG', name: 'Papel' },
+    { type: 'paper', src: 'assets/trash/papel_higienico.PNG', name: 'Papel Higiênico' },
+    { type: 'plastic', src: 'assets/trash/pote_plastico.PNG', name: 'Pote de Plástico' }
 ];
 
 const typeWords = {
