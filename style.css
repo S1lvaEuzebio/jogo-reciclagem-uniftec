@@ -138,8 +138,8 @@ header {
 }
 
 .trash-item {
-    width: 64px;
-    height: 64px;
+    width: 90px;
+    height: 90px;
     cursor: grab;
     user-select: none;
     touch-action: none;
@@ -197,6 +197,25 @@ header {
     border: 2px solid #fff;
     border-radius: 4px;
     text-transform: uppercase;
+}
+
+.bin.blue span {
+    background-color: #007bff;
+}
+
+.bin.red span {
+    background-color: #dc3545;
+}
+
+.bin.green span {
+    background-color: #28a745;
+}
+
+.bin.yellow span {
+    background-color: #ffc107;
+    color: #000;
+    border-color: #000;
+    text-shadow: none;
 }
 
 /* Animações e Feedback */
