@@ -5,6 +5,7 @@ let currentRound = parseInt(sessionStorage.getItem('currentRound') || '1', 10);
 let hasScored = score > 0;
 let currentMistakes = 0;
 let currentType = '';
+let remainingItemsInRound = 0;
 
 let timerInterval = null;
 let timeLeft = 0;
@@ -25,10 +26,14 @@ roundDisplay.textContent = currentRound;
 
 // Dados dos Lixos
 const trashTypes = [
-    { type: 'paper', src: 'assets/paper_trash_pixel.png', name: 'Bola de Papel' },
-    { type: 'plastic', src: 'assets/plastic_trash_pixel.png', name: 'Garrafa de Plástico' },
-    { type: 'glass', src: 'assets/glass_trash_pixel.svg', name: 'Pote de Vidro' },
-    { type: 'metal', src: 'assets/metal_trash_pixel.svg', name: 'Lata de Metal' }
+    { type: 'glass', src: 'assets/trash/caco_vidro.PNG', name: 'Caco de Vidro' },
+    { type: 'plastic', src: 'assets/trash/garrafa_plastico.PNG', name: 'Garrafa de Plástico' },
+    { type: 'glass', src: 'assets/trash/garrafa_vidro.PNG', name: 'Garrafa de Vidro' },
+    { type: 'metal', src: 'assets/trash/lata_refri.PNG', name: 'Lata de Refrigerante' },
+    { type: 'metal', src: 'assets/trash/lata_sardinha.PNG', name: 'Lata de Sardinha' },
+    { type: 'paper', src: 'assets/trash/papel.PNG', name: 'Papel' },
+    { type: 'paper', src: 'assets/trash/papel_higienico.PNG', name: 'Papel Higiênico' },
+    { type: 'plastic', src: 'assets/trash/pote_plastico.PNG', name: 'Pote de Plástico' }
 ];
 
 const typeWords = {
@@ -52,10 +57,7 @@ function stopTimer() {
 
 function startTimerForRound() {
     stopTimer();
-    if (currentRound >= 30) {
-        timeLeft = 5;
-        timerDisplayContainer.style.display = 'block';
-    } else if (currentRound >= 10) {
+    if (currentRound >= 10) {
         timeLeft = 10;
         timerDisplayContainer.style.display = 'block';
     } else {
@@ -129,16 +131,7 @@ function updateScore(points) {
     }
 }
 
-function spawnTrash() {
-    trashSpawner.innerHTML = '';
-    currentMistakes = 0;
-    updateHintDisplay();
-    startTimerForRound();
-
-    const randomIndex = Math.floor(Math.random() * trashTypes.length);
-    const trashData = trashTypes[randomIndex];
-    currentType = trashData.type;
-
+function createTrashItem(trashData) {
     const img = document.createElement('img');
     img.src = trashData.src;
     img.alt = trashData.name;
@@ -149,7 +142,7 @@ function spawnTrash() {
     trashSpawner.appendChild(img);
 
     img.style.transform = 'scale(0)';
-    setTimeout(() => { img.style.transform = 'scale(1)'; }, 50);
+    setTimeout(() => { if (img.isConnected) img.style.transform = 'scale(1)'; }, 50);
 
     let isDragging = false;
     let startX = 0, startY = 0;
@@ -162,6 +155,8 @@ function spawnTrash() {
         img.classList.add('dragged-manual');
         img.setPointerCapture(e.pointerId);
         img.style.transition = 'none';
+        // Define o tipo atual para o caso de erro imediato
+        currentType = img.dataset.type;
     });
 
     img.addEventListener('pointermove', (e) => {
@@ -192,22 +187,27 @@ function spawnTrash() {
                 bin.classList.add('success');
                 setTimeout(() => bin.classList.remove('success'), 600);
 
-                currentRound++;
-                roundDisplay.textContent = currentRound;
-                saveState();
-                stopTimer();
+                remainingItemsInRound--;
 
                 img.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
                 img.style.transform = `translate(${currentX}px, ${currentY}px) scale(0)`;
                 img.style.opacity = '0';
 
-                setTimeout(spawnTrash, 400);
+                setTimeout(() => img.remove(), 300);
+
+                if (remainingItemsInRound === 0) {
+                    currentRound++;
+                    roundDisplay.textContent = currentRound;
+                    saveState();
+                    stopTimer();
+                    setTimeout(spawnTrash, 400);
+                }
             } else {
-                // Se for rodada com tempo (rodadas >= 10), erro leva direto a Game Over
                 if (currentRound >= 10) {
                     triggerGameOver("Você errou a lixeira na rodada com tempo mortal!");
                 } else {
                     currentMistakes++;
+                    currentType = img.dataset.type; // Atualiza dica para o item atual
                     const isGameOver = updateScore(-5);
 
                     if (!isGameOver) {
@@ -217,7 +217,7 @@ function spawnTrash() {
                         currentX = 0;
                         currentY = 0;
                         img.style.transform = `translate(0px, 0px) scale(1)`;
-                        setTimeout(() => { img.style.transition = 'none'; }, 450);
+                        setTimeout(() => { if (img.isConnected) img.style.transition = 'none'; }, 450);
                     }
                 }
             }
@@ -226,9 +226,33 @@ function spawnTrash() {
             currentX = 0;
             currentY = 0;
             img.style.transform = `translate(0px, 0px) scale(1)`;
-            setTimeout(() => { img.style.transition = 'none'; }, 350);
+            setTimeout(() => { if (img.isConnected) img.style.transition = 'none'; }, 350);
         }
     });
+}
+
+function spawnTrash() {
+    trashSpawner.innerHTML = '';
+    currentMistakes = 0;
+    updateHintDisplay();
+    startTimerForRound();
+
+    let numToSpawn = 1;
+    if (currentRound >= 30) {
+        numToSpawn = Math.floor(Math.random() * 5) + 1;
+    } else if (currentRound >= 10) {
+        numToSpawn = 2;
+    }
+
+    remainingItemsInRound = numToSpawn;
+
+    for (let i = 0; i < numToSpawn; i++) {
+        const randomIndex = Math.floor(Math.random() * trashTypes.length);
+        const trashData = trashTypes[randomIndex];
+        // O primeiro item define o tipo inicial para a dica (embora seja limpo no spawnTrash)
+        if (i === 0) currentType = trashData.type;
+        createTrashItem(trashData);
+    }
 }
 
 // Inicia o jogo

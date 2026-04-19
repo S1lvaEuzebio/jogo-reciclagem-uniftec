@@ -77,8 +77,9 @@ function renderSlide(index) {
 
     if (index === slides.length - 1) {
         nextBtn.textContent = 'Começar!';
+        nextBtn.style.display = "block"; // Garante visibilidade no final
     } else {
-        nextBtn.textContent = '▶';
+        nextBtn.textContent = ''; // Remove ícone de seta conforme preferência anterior
     }
 
     // Aplica Animação Fade-In no texto e imagem container
@@ -129,19 +130,22 @@ function finishTyping() {
     nextBtn.style.visibility = 'visible';
 }
 
-nextBtn.addEventListener('click', () => {
+// O botão continua funcionando se clicado diretamente, mas a tela inteira agora também funciona
+nextBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); // Evita duplicar com o evento do document
     if (isTyping) {
-        finishTyping(); // Completa se clickar no meio
+        finishTyping();
     } else {
-        // Avançar pra próximo
         advanceSlide();
     }
 });
 
-// Suporte pra clicar em qualquer lugar da tela
-document.addEventListener('pointerup', (e) => {
-    if (e.target !== nextBtn && isTyping) {
+// Suporte pra clicar em qualquer lugar da tela para pular/avançar
+document.addEventListener('pointerup', () => {
+    if (isTyping) {
         finishTyping();
+    } else {
+        advanceSlide();
     }
 });
 
